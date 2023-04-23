@@ -8,7 +8,6 @@
 #define G 5
 #define B 6
 #define SWITCH 2
-#define STOP 4
 
 int vec[6][3] = {/*RED*/{255, 0, 0},/*ORANGE*/ {255, 64, 0},/*YELLOW*/ {255, 255, 0},/*GREEN*/ {0, 255, 0},/*BLU*/ {0, 0, 255}, /*Purple*/ {255, 0, 255}}, i = -1, sw, pastState = LOW;
 
