@@ -43,7 +43,7 @@ void  loop(){
   unsigned long currentMillis = millis();
   if(currentMillis - previusMillis >= debounce){ //sets a time delay between the reception of inputs
     previusMillis = currentMillis;
-
+   
     if(sw == HIGH && pastState == LOW){
       Serial.println("Manual mode engaged");
       manualMode = true;
@@ -95,13 +95,11 @@ void  loop(){
 
       if(selector == true && i<5){  //choses to either increment or decrease the value of 'i' (starts at value: -1 to then travel between 0 and 5)
         i++;
-
         if(i == 5) {
           selector = false;
         }
       } else {
         i--;
-        
         if(i == 0){
           selector = true;
         }
