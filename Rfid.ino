@@ -9,7 +9,11 @@
 #define B 6
 #define SWITCH 2
 
-int vec[6][3] = {/*RED*/{255, 0, 0},/*ORANGE*/ {255, 64, 0},/*YELLOW*/ {255, 255, 0},/*GREEN*/ {0, 255, 0},/*BLU*/ {0, 0, 255}, /*Purple*/ {255, 0, 255}}, i = -1, sw, pastState = LOW;
+const char card0[12] = "B0 79 55 80";
+const char card1[12] = "60 AC 0E 41";
+const char card2[12] = "60 9B 05 41";
+
+int vec[7][3] = {/*WHITE*/{255, 255, 255},/*RED*/ {255, 0, 0},/*ORANGE*/ {255, 64, 0},/*YELLOW*/ {255, 255, 0},/*GREEN*/ {0, 255, 0},/*BLU*/ {0, 0, 255}, /*Purple*/ {255, 0, 255}}, i = -1, sw, pastState = LOW;
 
 unsigned long previusMillis = 0;
 const long debounce = 200;
@@ -21,7 +25,7 @@ MFRC522 mfrc522(SS_PIN, RST_PIN);   // Create MFRC522 instance.
 void setup(){
   Serial.begin(9600);   // Initiate a serial communication
   SPI.begin();      // Initiate  SPI bus
-  
+
   mfrc522.PCD_Init();   // Initiate MFRC522
   
   Serial.println("Approximate your  card to the reader");
@@ -30,7 +34,6 @@ void setup(){
   pinMode(G, OUTPUT);
   pinMode(B, OUTPUT);
   pinMode(SWITCH, INPUT);
-  pinMode(STOP, INPUT);
   
   digitalWrite(R, LOW);
   digitalWrite(G, LOW);
@@ -79,22 +82,22 @@ void  loop(){
   content.toUpperCase();
   
   if(manualMode == false){ //checks if the manual mode is enabled
-    if(content.substring(1) == "04 5A C1 EA 5E 70 81"){
+    if(content.substring(1) == card0){
       Serial.println("RED");
       led(255, 0, 0);
-    } else if(content.substring(1) == "04 42 EF EA 5E 70 80"){
+    } else if(content.substring(1) == card1){
       Serial.println("GREEN");
       led(0, 255, 0);
-    } else if(content.substring(1) == "04 1C 86 EA 5E 70 80"){
+    } else if(content.substring(1) == card2){
       Serial.println("BLUE");
       led(0, 0, 255);
     }
   } else {
-    if(content.substring(1) == "04 5A C1 EA 5E 70 81" || "04 42 EF EA 5E 70 80" || "04 1C 86 EA 5E 70 80"){
+    if(content.substring(1) == card0 || card1 || card2){
 
-      if(selector == true && i<5){  //choses to either increment or decrease the value of 'i' (starts at value: -1 to then travel between 0 and 5)
+      if(selector == true && i<6){  //choses to either increment or decrease the value of 'i' (starts at value: -1 to then travel between 0 and 5)
         i++;
-        if(i == 5) {
+        if(i == 6) {
           selector = false;
         }
       } else {
