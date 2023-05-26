@@ -1,7 +1,12 @@
 //Code by Botan Denis of the class 3ATT-2022/2023 IIS Levi-Ponti(Levi)
+
+//This code was made for an NFC/RFID controlled RGB lamp
+
+//Libraries required for the functioning of the code
 #include <SPI.h>
 #include <MFRC522.h>
  
+//Defines the pins required for the functioning of the code
 #define SS_PIN 10
 #define RST_PIN 9
 #define R 3
@@ -9,16 +14,16 @@
 #define B 6
 #define SWITCH 2
 
-const char card0[12] = "B0 79 55 80";
-const char card1[12] = "60 AC 0E 41";
-const char card2[12] = "60 9B 05 41";
+//Defines the access codes of the cards
+const char card0[12] = "60 9B 05 41";
+const char card1[12] = "B0 79 55 80";
+const char card2[12] = "60 AC 0E 41";
+const char card3[12] = "B8 6C B2 3D";
 
-int vec[7][3] = {/*WHITE*/{255, 255, 255},/*RED*/ {255, 0, 0},/*ORANGE*/ {255, 64, 0},/*YELLOW*/ {255, 255, 0},/*GREEN*/ {0, 255, 0},/*BLU*/ {0, 0, 255}, /*Purple*/ {255, 0, 255}}, i = -1, sw, pastState = LOW;
+//Defines the RGB values to feed into the led() function, the initial value of the advancedMode loop and the variable used to tore the value state of the SWITCH
+int vec[7][3] = {/*WHITE*/{255, 255, 255},/*RED*/ {255, 0, 0},/*ORANGE*/ {255, 64, 0},/*YELLOW*/ {255, 255, 0},/*GREEN*/ {0, 255, 0},/*BLU*/ {0, 0, 255}, /*Purple*/ {255, 0, 255}}, i = -1, sw;
 
-unsigned long previusMillis = 0;
-const long debounce = 200;
-
-bool manualMode = false, selector = true;
+bool advancedMode = false, selector = true;
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);   // Create MFRC522 instance.
  
@@ -28,7 +33,7 @@ void setup(){
 
   mfrc522.PCD_Init();   // Initiate MFRC522
   
-  Serial.println("Approximate your  card to the reader");
+  //Serial.println("Approximate your  card to the reader");
   
   pinMode(R, OUTPUT);
   pinMode(G, OUTPUT);
@@ -41,22 +46,15 @@ void setup(){
 
 }
 void  loop(){
-  sw = digitalRead(SWITCH); 
-  unsigned long currentMillis = millis();
-  if(currentMillis - previusMillis >= debounce){ //sets a time delay between the reception of inputs
-    previusMillis = currentMillis;
-   
-    if(sw == HIGH && pastState == LOW){
-      Serial.println("Manual mode engaged");
-      manualMode = true;
-      pastState = HIGH;
-      i = -1;
-    } else if(sw == HIGH && pastState == HIGH){
-      Serial.println("manual mode unengaged");
-      manualMode = false;
-      pastState = LOW;
-    }
+  sw = digitalRead(SWITCH);
+  if(sw == HIGH){ //advancedMode setter
+    //Serial.println("Manual mode engaged");
+    advancedMode = true;
+  } else {
+    //Serial.println("manual mode unengaged");
+    advancedMode = false;
   }
+  
   // Look for new cards
   if( ! mfrc522.PICC_IsNewCardPresent()){
     return;
@@ -81,20 +79,24 @@ void  loop(){
   Serial.print("Message : ");
   content.toUpperCase();
   
-  if(manualMode == false){ //checks if the manual mode is enabled
+  if(advancedMode == false){ //checks if the manual mode is enabled
+    //Main mode
     if(content.substring(1) == card0){
+      Serial.println("WHITE");
+      led(255, 255, 255);
+    } else if(content.substring(1) == card1){
       Serial.println("RED");
       led(255, 0, 0);
-    } else if(content.substring(1) == card1){
+    } else if(content.substring(1) == card2){
       Serial.println("GREEN");
       led(0, 255, 0);
-    } else if(content.substring(1) == card2){
+    } else if(content.substring(1) == card3){
       Serial.println("BLUE");
       led(0, 0, 255);
     }
   } else {
-    if(content.substring(1) == card0 || card1 || card2){
-
+    //Advanced Mode
+    if(content.substring(1) == card0 || card1 || card2 || card3){
       if(selector == true && i<6){  //choses to either increment or decrease the value of 'i' (starts at value: -1 to then travel between 0 and 5)
         i++;
         if(i == 6) {
@@ -107,7 +109,7 @@ void  loop(){
         }
       }
       Serial.println(i);
-      led(vec[i][0], vec[i][1], vec[i][2]);
+      led(vec[i][0], vec[i][1], vec[i][2]); //sets R, G and B values of the lamp from respectively the 0, 1 and 2 column of the vector
       delay(1500);
     }
   }
